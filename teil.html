@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html itemtype="http://schema.org/WebPage" lang="en">
+	<head>
+	<!-- Meta header tags. Some of this is just useful, some of this is required for proper display -->
+	<meta charset="utf-8">
+	<meta name="description" content="teil tech demo">
+	<meta name="author" content="avanderwoude">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta id="theViewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="home" href="/">
+	
+	<!-- BOOTSTRAP 3 -->
+	<link rel="stylesheet" type="text/css" href="resources/less/bootstrap.min.css" media="screen">
+	
+	<!-- Open sans font, pretty standard. Infinitely better readability than the default, and its a trivial data load  -->
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'>
+	
+	<!-- Local styles (Less Pre-processed). Edit the .less files of identical name, and use a less processor to 
+	automatically generate the css files on save - I use winless (winless.org) to process less into 
+	css & minify, for more info go to lesscss.org -->
+	<link rel="stylesheet" type="text/css" href="resources/less/teil.css" media="screen">
+	
+	<!-- jQuery. Rest of JS should be at bottom of page, easier to have this here if inline scripts are needed. 
+		can move to bottom later if needed-->
+	<script src="resources/js/lib/jquery-2.1.4.min.js"></script>
+	
+	<!-- Server-side variable for page title -->
+	<title>TEIL DEMO</title>
+	</head>
+	<body>
+		<section id="main-edit-body">
+			<canvas id="c">Sorry, your device does not support HTML5 Canvas.</canvas>
+		</section>
+		<div id="page-content-wrapper"><!-- Page Content -->
+			<div class="container-fluid" style="display:none;">
+				<div class="row" >
+					<div class="col-lg-12">
+						
+					</div>
+				</div>
+			</div>
+			
+			<!-- JS scripts down here to prioritize DOM loading for perceptual loading, except for jquery -->
+			<!-- Bootstrap Core JavaScript -->
+			<script src="resources/js/lib/bootstrap.min.js"></script>
+			<!-- custom javascript -->
+			<script src="resources/js/engine.js"></script>
+			<script src="resources/js/run.js"></script>
+			<script src="resources/js/input.js"></script>
+		</div><!-- /#page-content-wrapper -->
+	</body>
+</html>
