@@ -37,7 +37,19 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			
 		};
 		
-		//token object
+		var killToken = function(token){
+			if (token.strength > 1){
+				token.strength--;
+				return false;
+				}
+			else{
+				theTiles[toLinear(token.x,token.y)] = null;
+				delete token;
+				return true;
+			}
+		}
+		
+		//player obj
 		var player = function(name, color){
 			this.name = name;
 			this.color = color;
@@ -126,12 +138,11 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			
 			var polandObject = getPolandObject(board,token);
 			
-			if (polandObject.enemyCount){
+			if (polandObject.enemyArray.length){
 				//LET LOOSE THE DOGS OF WAR
-				
+				var enemyToken = polandObject.enemyArray[Math.round(Math.random()*polandObject.enemyArray.length)]
+				fight(board, polandObject, enemyToken);
 			}
-			
-			
 		}
 		
 		var getPolandObject = function(board, token){
@@ -181,8 +192,8 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 				
 			//of just looking to making a little bit of moneys
 			var polandArray = [];
-			var friendlyCount = 0;
-			var enemyCount = 0;
+			var friendlyArray = [];
+			var enemyArray = [];
 			
 			for (var i=0;i<neighborArray.length;i++){
 				var status = 0;
@@ -192,10 +203,10 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 						status++;
 						if (neighborArray[i].p === tP){
 							status++;
-							friendlyCount++;
+							friendlyArray.push(neighborArray[i]);
 						}
 						else{
-							enemyCount++;
+							enemyArray.push(neighborArray[i]);
 						}
 					}
 				}
@@ -203,17 +214,73 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			}
 			
 			/*{
-			enemyCount:0,
-			friendlyCount:0,
+			token:{},
+			enemyArray:[],
+			friendlyArray:[],
 			polandArray:[]
 			}
 			
 			*/
-			return {enemyCount, friendlyCount, polandArray};
+			return {token, polandArray, enemyArray, friendlyArray,};
 		}
 		
-		var fight = function(polandObject){
-		
+		var fight = function(board, polandObject, enemyToken){
+			//get counts of each side
+			var howDeepAreWeRolling = polandObject.friendlyArray.length;
+			var howDeepAreTheyRolling = polandObject.enemyArray.length;
+			
+			
+			
+			//for each defender, each side rolls all their dice and takes the highest. whomever is lower, dies. repeats until no defenders left
+			while (polandObject.enemyArray.length > 0){
+				var ourName = polandObject.token.p.name;
+				var theirName = polandObject.enemyArray[0].p.name;
+			
+				var ourRolls = [];
+				var theirRolls = [];
+				
+				var outputString = ourName + " rolled: ";
+			
+				for (var i=0;i<howDeepAreWeRolling;i++){
+				var roll = Math.random().toFixed(2)*100;
+				ourRolls.push(roll);
+				outputString += roll +" ";
+				}
+				
+				outputString += "\n" + theirName + " rolled: "
+				for (var i=0;i<howDeepAreTheyRolling;i++){
+				var roll = Math.random().toFixed(2)*100;
+				theirRolls.push(roll);
+				outputString += roll +" ";
+				}
+				
+				var weWon = (Math.max.apply(null, ourRolls) > Math.max.apply(null, theirRolls));
+				if (weWon){
+					var toKill = polandObject.enemyArray[polandObject.enemyArray.length-1];
+					if (board.killToken(toKill))
+						polandObject.enemyArray.pop();
+					outputString += "\n"+ ourName + " Won! \n" + "RIP " + theirName;
+				}
+				else {
+					var toKill = polandObject.friendlyArray[polandObject.friendlyArray.length-1];
+					if (board.killToken(toKill))
+						polandObject.friendlyArray.pop();
+					outputString += "\n"+ theirName + " Won! \n" + "RIP " + ourName;
+				}
+				
+				//alert(outputString);
+			}
+			
+			
+			
+			
+			//kill those who were not fortunate
+			//god bless the troops
+			
+			
+			//move those who won
+			//god bless the troops
+			
 		}
 		
 		return {
@@ -223,7 +290,8 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			createPlayer: createPlayer,
 			boardWidth: boardWidth,
 			boardHeight: boardHeight,
-			sim: sim
+			sim: sim,
+			killToken: killToken
 		}
 	}
 	

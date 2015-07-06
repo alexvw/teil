@@ -137,8 +137,8 @@
 	
 	
 	function start(){
-		var width = 16;
-		var height = 16;
+		var width = 32;
+		var height = 32;
 
 		window.te = new teilEngine(width,height,2,3);
 		board = te.getBoard;
@@ -150,22 +150,17 @@
 		
 		pageInit(te);
 		
-		/*while (x<300){
-			var a = Math.round(1+Math.random()*(width-1));
-			var b = Math.round(1+Math.random()*(height-1));
-			var p = player1;
-			success = te.getBoard.dropToken(a,b,p);
-			
-			a = Math.round(1+Math.random()*(width-1));
-			b = Math.round(1+Math.random()*(height-1));
-			p = player2
-			success = te.getBoard.dropToken(a,b,p);
-			
-			x++;
-		}*/
+		setInterval(testClickP1, 20);
 		
 		
 		//clickhandlers
+	}
+	
+	function testClickP1(){
+			var a = Math.round(1+Math.random()*(767));
+			var b = Math.round(1+Math.random()*(767));
+			var success = false;
+			success = goClick(a,b);
 	}
 	
 	$(document).ready(function(){
