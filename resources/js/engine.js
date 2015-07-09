@@ -63,7 +63,7 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			//check if space is open first
 			var alreadyThere = this.getTileByXY(x,y);
 			if (alreadyThere === null){
-				console.log("Dropping token at " + x +", "+y);
+				//console.log("Dropping token at " + x +", "+y);
 				theTiles[toLinear(x,y)] = new token(x,y,p);
 				return true;
 			}else if (alreadyThere instanceof token){
@@ -72,18 +72,18 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 				if (alreadyThere.p === p){
 					//its my token, increase strength
 					if (alreadyThere.strength < MAX_STRENGTH){
-						console.log("Adding to token at " + x +", "+y);
+						//console.log("Adding to token at " + x +", "+y);
 						alreadyThere.strength++;
 						return true;
 					}else{
-						console.log("Max strength at " + x +", "+y);
+						//console.log("Max strength at " + x +", "+y);
 						//alreadyThere.strength++;
 						return false;
 
 					}
 				}
 				else {
-					console.log("There is already an enemy token at " + x +", "+y);
+					//console.log("There is already an enemy token at " + x +", "+y);
 					return false;
 				}
 			}else{
@@ -111,38 +111,42 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			
 			var boardCopy = this.getTheTiles.slice(0);
 			//randomly shuffle tiles
-			var randomArray = new Array();
+			//var randomArray = new Array();
 			
-			randomSwap(boardCopy,randomArray);
+			//no more, efficiency > simplicity
+			//randomSwap(boardCopy,randomArray);
 			
 			//for each of them, execute THE ALGORITHM on the board
-			for (var i=0;i<randomArray.length;i++){
-				var randomToken = randomArray[i];
-				var tX = randomToken.x;
-				var tY = randomToken.y;
-				
-				var origToken = this.getTileByXY(tX,tY);
-				algorithm(this,origToken);
+			//pray I do not alter the board length any further
+			var boardLength = boardCopy.length;
+			for (var i=0;i<boardLength;i++){
+				var origToken = boardCopy.splice(Math.round(Math.random()*boardCopy.length),1)[0];
+				if (typeof origToken != "undefined" && origToken != null)
+					algorithm(this,origToken);
 			}
 			
 		}
 		
 		//THE ALGORITHM
 		//does its magic on the original objects
-		var algorithm = function(board, token){
+		var algorithm = function(board, tokenIn){
 			
-			var tX = token.x;
-			var tY = token.y;
-			var tP = token.p;
-			var tiles = board.getTheTiles;
-			
-			var polandObject = getPolandObject(board,token);
-			
-			if (polandObject.enemyArray.length){
-				//LET LOOSE THE DOGS OF WAR
-				var enemyToken = polandObject.enemyArray[Math.round(Math.random()*polandObject.enemyArray.length)]
-				fight(board, polandObject, enemyToken);
+			if (tokenIn instanceof token){
+				var tX = tokenIn.x;
+				var tY = tokenIn.y;
+				var tP = tokenIn.p;
+				var tiles = board.getTheTiles;
+				
+				var polandObject = getPolandObject(board,tokenIn);
+				
+				if (polandObject.enemyArray.length){
+					//LET LOOSE THE DOGS OF WAR
+					var enemyToken = polandObject.enemyArray[Math.round(Math.random()*polandObject.enemyArray.length)]
+					fight(board, polandObject, enemyToken);
+				}
 			}
+			else return;
+			
 		}
 		
 		var getPolandObject = function(board, token){
@@ -232,9 +236,9 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 			
 			
 			//for each defender, each side rolls all their dice and takes the highest. whomever is lower, dies. repeats until no defenders left
-			while (polandObject.enemyArray.length > 0){
+			while (polandObject.enemyArray.length > 0 && polandObject.friendlyArray.length > 0){
 				var ourName = polandObject.token.p.name;
-				var theirName = polandObject.enemyArray[0].p.name;
+				var theirName = "Enemies";
 			
 				var ourRolls = [];
 				var theirRolls = [];
@@ -254,15 +258,27 @@ teilEngine = function(width, height, players, MAX_STRENGTH){
 				outputString += roll +" ";
 				}
 				
-				var weWon = (Math.max.apply(null, ourRolls) > Math.max.apply(null, theirRolls));
+				var weWon = (Math.max.apply(null, ourRolls) >= Math.max.apply(null, theirRolls));
+				
+				//make sure we even have frienemies before we try to kill them
+				var hasFriends = polandObject.enemyArray.length;
+				var hasEnemies = polandObject.friendlyArray.length;
+				
+				
 				if (weWon){
 					var toKill = polandObject.enemyArray[polandObject.enemyArray.length-1];
+					
 					if (board.killToken(toKill))
 						polandObject.enemyArray.pop();
 					outputString += "\n"+ ourName + " Won! \n" + "RIP " + theirName;
 				}
 				else {
 					var toKill = polandObject.friendlyArray[polandObject.friendlyArray.length-1];
+					
+							
+					if (typeof toKill == "undefined")
+						toKill = polandObject.token;
+					
 					if (board.killToken(toKill))
 						polandObject.friendlyArray.pop();
 					outputString += "\n"+ theirName + " Won! \n" + "RIP " + ourName;

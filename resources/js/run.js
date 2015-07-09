@@ -6,11 +6,11 @@
 	
 	var MAX_STRENGTH = 3;
 	
-	var player1;
-	var player2;
+	var players = [];
 	var running = true;
 	
 	var step = 0;
+	var ip = 0;
 	
 	/*function InvSqrt(x){
 	   var xhalf = 0.5 * x;
@@ -114,25 +114,46 @@
 	function goClick(x,y){
 		var ret = xyToBoard(x,y)
 		//alert(ret.bx +", "+ret.by);
-		var p = player2;
-		if (step%2)
-			p = player1;
-		var success = te.getBoard.dropToken(ret.bx,ret.by,p);
-		if (success)
+		var success = te.getBoard.dropToken(ret.bx,ret.by,players[ip]);
+		if (success){
 			step++;
+			ip = (ip+1) % (players.length);
+		}
 			
-		updateUI(step);
+			
+		updateUI(players[ip].name);
 		te.getBoard.sim(step);
+		if (step%4 == 0)
+			updateScores();
+	}
+	
+	function calcScore(players, board){
+		//for every tile on the board, see what player controls
+		var score = {};
+		for (var i=0;i<players.length;i++){
+			score[players[i].name] = 0;
+		}
+		
+		var tiles = board.getTheTiles;
+		for (var i=0;i<tiles.length;i++){
+			var thisSpot = tiles[i];
+			if (typeof thisSpot != undefined && thisSpot != null){
+				score[thisSpot.p.name]++;
+			}
+		}
+		return score;
 	}
 
-	function updateUI(step){
-		if (step % 2){
-			$('#p1').addClass("active");
-			$('#p2').removeClass("active");
-		}else{
-			$('#p2').addClass("active");
-			$('#p1').removeClass("active");
+	function updateUI(playerid){
+		$('.player').removeClass("active");
+		$('#player-'+playerid).addClass("active");
+	}
+	function updateScores(){
+		var scores = calcScore(players, te.getBoard);
+		for (n in scores){
+			$('#player-'+n).find(".score").html(scores[n]);
 		}
+		
 	}
 	
 	
@@ -142,23 +163,37 @@
 
 		window.te = new teilEngine(width,height,2,3);
 		board = te.getBoard;
-		player1 = te.getBoard.createPlayer("Hero", "#c00");
-		player2 = te.getBoard.createPlayer("Enemy", "#00c");
+		players.push(te.getBoard.createPlayer("Red", "#c00"));
+		players.push(te.getBoard.createPlayer("Cerulean", "#00c"));
+		players.push(te.getBoard.createPlayer("Green", "#0c0"));
+		players.push(te.getBoard.createPlayer("Purple", "#c0c"));
+		
+		//players.push(te.getBoard.createPlayer("Yellow", "#cc0"));
+		//players.push(te.getBoard.createPlayer("Grey", "#888"));
+		
+		$('#players').html("");
+		
+		for (var i=0;i<players.length;i++){
+			var list = $('#players').html();
+			list += "<div id='player-"+players[i].name+"' class='player col-sm-"+Math.round(12/players.length)+"'><span style='width:30px;height:30px;background-color:"
+			+players[i].color+"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> &nbsp;"+players[i].name+"&nbsp;&nbsp;<span class='score'></span></div>";
+			$('#players').html(list);
+		}
 		
 		var x = 0;
 		var conflict = false;
 		
 		pageInit(te);
 		
-		setInterval(testClickP1, 20);
-		
+		//setInterval(testClickP1, 15);
+		setInterval(testClickP1, 7);
 		
 		//clickhandlers
 	}
 	
 	function testClickP1(){
-			var a = Math.round(1+Math.random()*(767));
-			var b = Math.round(1+Math.random()*(767));
+			var a = Math.round(1+Math.random()*(766));
+			var b = Math.round(1+Math.random()*(766));
 			var success = false;
 			success = goClick(a,b);
 	}
